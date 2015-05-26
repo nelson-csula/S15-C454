@@ -116,6 +116,33 @@ def strip_tags(html):
         must_filtered = s.has_tags()
     return html
 
+# Neighboor look-up for each crime
+def get_neighborhood(crime):
+    # http://maps.googleapis.com/maps/api/geocode/json?latlng=37.76893497,-122.42284884&sensor=false
+    # crime[xCoor], crime[yCoor] X_COORDINATE	Y_COORDINATE
+    uri = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + crime["xCoor"] + "," + crime['yCoor'] + "&sensor=false"
+    response = urllib.urlopen(uri)
+    data = json.loads(response.read())
+    response.close();
+
+    for result in data:
+        address_components = data["address_components"]
+        for component in address_components:
+            types = component["types"]
+            for type in types:
+                if type == "neighborhood":
+                    neighborhood = component["short_name"]
+                    return neighborhood
+
+def get_neighborhood_for_crimes():
+    dbCrimes = db.crimes.find()
+    # print "crime count", dbCrimes.count()
+    for crime in dbCrimes:
+        neighborhood = get_neighborhood(crime)
+        category = crime["category"]
+        print category, "occured in", neighborhood
+
+
 ###############################################################
 ## Data Acquisition Main()
 
@@ -124,6 +151,9 @@ debug = 0
 # DB client
 mongo = MongoClient()
 db = mongo.bigDataTest
+
+# get_neighborhood_for_crimes()
+# exit(0)
 
 # Sheriff's Department Data
 # http://shq.lasdnews.net/CrimeStats/CAASS/PART_I_AND_II_CRIMES.csv
@@ -134,7 +164,12 @@ response = urllib2.urlopen(url)
 cr = csv.reader(response)
 
 for row in cr:
+    # (           id, incidentDate, category, stat, statDesc, addressStreet, city, zip, xCoor, yCoor, incidentId, reportDistrict, seq, unitId, unitName, deleted):
+
     add_crimes(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15])
+
+
+
 
 # Loop through news sources
 dbSources = db.sources.find()
