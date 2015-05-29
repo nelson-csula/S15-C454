@@ -2,6 +2,7 @@
 
 # use: pip install bokeh
 import time
+import calendar
 
 from numpy import cumprod, linspace, random
 
@@ -10,8 +11,12 @@ from bokeh.plotting import figure, show, output_file, vplot
 num_points = 300
 
 now = time.time()
+print now;
 dt = 24*3600 # days in seconds
 dates = linspace(now, now + num_points*dt, num_points) * 1000 # times in ms
+
+
+
 acme = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 

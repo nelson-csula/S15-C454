@@ -256,15 +256,6 @@ def getCrimeCountForNeighborhood( name, crime ):
     # Return result as count for neighborhood
 
 def getCrimeCountByDate( crime ):
-    #matches = db.crimes.find( { "category": crime } );
-    #for match in matches:
-    #    d = match["incidentDate"];
-        # d2 = dateutil.parser.parse(d);
-        # print d, d2;
-    print "working..."
-    # pipeline = [ { "$match": { "category": { "$eq": nameOfCrime } } }, {"$group" : {"_id":"$city", "count":{"$sum":1}} }, { "$group": { "_id": "$_id", "avgCount": { "$avg": "$count" } } }, { "$sort": { "avgCount": -1  }  } ];
-    # pipeline = [ { "$match": { "category": { "$eq": crime       } } }, {"$group" : {"_date": { "d": { "$substr":[ "$parsedDate",0,10  ]  }  }, "count": {"$sum": 1}  }  }, { "$sort": { "_date": 1  } } ];
-    # pipeline = [ { "$match": { "category": { "$eq": crime       } } }, {"$group" : {"_date": { "$substr":[ "$parsedDate",0,10  ] }, "count": {"$sum": 1}  }  }, { "$sort": { "_date": 1  } } ];
     pipeline = [
         # Lets find our records
         {"$match":{"category":{"$eq": crime}}},
@@ -274,7 +265,6 @@ def getCrimeCountByDate( crime ):
     ]
 
     results = db.crimes.aggregate( pipeline );
-    print "done."
     return results;
 
 #########################################################################
