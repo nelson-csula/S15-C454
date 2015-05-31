@@ -237,6 +237,20 @@ def getCrimeCountByCity( nameOfCrime ):
 
     return sum;
 
+# def getStoryCrimeCountByDate( nameOfCrime ):
+#     pipeline = [ { "$match": { "crime": { "$eq": nameOfCrime } } }, {"$group" : {"_id":"$city", "count":{"$sum":1}} }, { "$group": { "_id": "$_id", "avgCount": { "$avg": "$count" } } }, { "$sort": { "avgCount": -1  }  } ];
+#     sum = db.crimes.aggregate( pipeline );
+#
+#     count = 0;
+#     for zipEntry in sum:
+#         count = count + 1;
+#         print " >> ", zipEntry["_id"], zipEntry["avgCount"];
+#         if count == 3:
+#             break;
+#
+#     return sum;
+
+
 def getCrimeCountForNeighborhood( name, crime ):
     # 1. Get list of zip codes for neighborhood
     nList = db.neighborhoods.find( { "name": name });
@@ -269,27 +283,50 @@ def getCrimeCountByDate( crime ):
 
 #########################################################################
 # Crimes where neighborhood is identified
+storycrime = {};
+storycrime["total"] = {};
+
 for c in crimes.keys():
     for n in neighborhoods.keys():
         if n == c:
-            print "found news story of", crimes[c]["crime"], "as", crimes[c]["alias"], "in", neighborhoods[n], ". neighborhood with the heighest occurances of this crime are:";
+            nameOfCrime = crimes[c]["crime"];
+            nameOfNeighborhood = neighborhoods[n]
+
+            # update location by crime count
+            if nameOfNeighborhood not in storycrime:
+                storycrime[nameOfNeighborhood] = { };
+
+            countForCrime = 0;
+            if nameOfCrime in storycrime[nameOfNeighborhood]:
+                countForCrime = storycrime[nameOfNeighborhood][nameOfCrime];
+
+            countForCrime = countForCrime + 1;
+            storycrime[nameOfNeighborhood][nameOfCrime] = countForCrime;
+
+            # update total crime count
+            countForTotal = 0;
+            if nameOfCrime in storycrime["total"]:
+                countForTotal = storycrime["total"][nameOfCrime];
+
+            countForTotal = countForTotal + 1;
+            storycrime["total"][nameOfCrime] = countForTotal;
+
+            print "Found news story of", crimes[c]["crime"], "as", crimes[c]["alias"], "in", neighborhoods[n], ". Neighborhood with the highest occurrences of this crime are:";
             sumByZip = getCrimeCountByCity( crimes[c]["crime"] );
 
             # how many total instances of this crime are in the database?
             crimeCount = db.crimes.find( { "category": crimes[c]["crime"] }).count();
-            print " * totals for this crime:", crimeCount, "for all neighborhoods";
+            print " * Totals for this crime:", crimeCount, "for all neighborhoods";
 
             # how many instances of this crime for the zip codes representing the neighborhood?
             t = getCrimeCountForNeighborhood(neighborhoods[n], crimes[c]["crime"]);
             percentRepresentation = 0;
             if int(crimeCount) > 0:
                 percentRepresentation = int(t) / float(crimeCount) * 100;
-            print " * totals for neighborhood", neighborhoods[n], ":",  t, "(", percentRepresentation, "%)";
+            print " * Totals for neighborhood", neighborhoods[n], ":",  t, "(", percentRepresentation, "%)";
             print "";
 
-#########################################################################
-# Get crime count by date
-countByDate = getCrimeCountByDate("ARSON");
-
-for c in countByDate:
-    print c["_id"], "=", c["sum"];
+for location in storycrime.keys():
+    print location;
+    for c in storycrime[location].keys():
+        print ">> ", c, "=", storycrime[location][c];

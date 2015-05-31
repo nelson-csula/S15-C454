@@ -1,6 +1,14 @@
 # http://bokeh.pydata.org/en/latest/docs/gallery.html
 
+
+
 # use: pip install bokeh
+###########################
+
+
+
+
+
 import time
 import calendar
 
@@ -189,7 +197,7 @@ def timeseries3( cats, dataMap):
     # y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
 
     ts = TimeSeries(xyvalues, index='Date', title="TimeSeries", legend="top_left",
-            ylabel='Languages')
+            ylabel='Crimes', width = 1500, height = 1000);
 
     output_file('timeseries.html')
     show(ts)
