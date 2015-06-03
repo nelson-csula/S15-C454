@@ -298,11 +298,17 @@ for v in correlations_sorted:
         c = v[1] * 100;
         print keys[0], "and", keys[1], "has " + str(c) + " correlation";
         regression = polyfit_detail[k];
-        # We need to generate actual values for the regression line.
-        r_x, r_y = zip(*((i, i*regression[0] + regression[1]) for i in range(5)));
+
+        x = correlations_detail[k][keys[0]];
+        y = correlations_detail[k][keys[1]];
+        max_x = max(x);
+
+        r_x, r_y = zip(*((i, i*regression[0] + regression[1]) for i in range(max_x)));
+
 
         u = figure(tools = "pan,wheel_zoom,box_zoom,reset,save", x_axis_label=keys[0], y_axis_label=keys[1]);
         u.line(r_x, r_y, color="red");
+        # u.circle(x,y, color="blue");
         u.scatter(x, y, marker="square", color="blue")
 
         output_file("regression-" + str(k1) + ".html");
