@@ -11,6 +11,7 @@ import dateutil
 
 # Start mongod before running
 from pymongo import MongoClient
+import pandas as pd
 
 mongo = MongoClient()
 db = mongo.bigDataTest
@@ -281,6 +282,10 @@ def getCrimeCountByDate( crime ):
     results = db.crimes.aggregate( pipeline );
     return results;
 
+def getStoryCountByNeighborhood( neighborhood ):
+    sum = db.news.find( { "neighborhood": neighborhood } ).count();
+    return sum;
+
 #########################################################################
 # Crimes where neighborhood is identified
 storycrime = {};
@@ -302,6 +307,13 @@ for c in crimes.keys():
 
             countForCrime = countForCrime + 1;
             storycrime[nameOfNeighborhood][nameOfCrime] = countForCrime;
+
+            totalForNeighborhood = 0;
+            if "total" in storycrime[nameOfNeighborhood]:
+                totalForNeighborhood = storycrime[nameOfNeighborhood]["total"];
+
+            storycrime[nameOfNeighborhood]["total"] = getStoryCountByNeighborhood(nameOfNeighborhood);
+
 
             # update total crime count
             countForTotal = 0;
@@ -330,3 +342,15 @@ for location in storycrime.keys():
     print location;
     for c in storycrime[location].keys():
         print ">> ", c, "=", storycrime[location][c];
+
+
+
+# dates = pd.date_range('20130101', periods=6)
+#
+# In [7]: dates
+# Out[7]:
+# DatetimeIndex(['2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04',
+#                '2013-01-05', '2013-01-06'],
+#               dtype='datetime64[ns]', freq='D', tz=None)
+#
+# In [8]: df = pd.DataFrame(np.random.randn(6,4), index=dates, columns=list('ABCD'))
