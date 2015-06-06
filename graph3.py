@@ -296,7 +296,7 @@ for v in correlations_sorted:
         k = v[0];
         keys = correlations_detail[k].keys();
         c = v[1] * 100;
-        print keys[0], "and", keys[1], "has " + str(c) + " correlation";
+        print keys[0], "and", keys[1], "has " + str(c) + " correlation for", k1;
         regression = polyfit_detail[k];
 
         x = correlations_detail[k][keys[0]];
